@@ -54,6 +54,10 @@
     return "home";
   }
 
+  function accountLabel() {
+    return S.user || "Logga in";
+  }
+
   function drawerHtml() {
     var act = activeId();
     var mods = TW_MODULES.map(function (m) {
@@ -71,6 +75,7 @@
       mods +
       '<div class="nav-sep"></div>' +
       '<button class="nav-link' + (act === "settings" ? " on" : "") + '" data-go="/settings"><span class="mark">⚙</span>Inställningar</button>' +
+      '<button class="nav-link' + (act === "login" ? " on" : "") + '" data-go="/login"><span class="mark">👤</span>' + accountLabel() + "</button>" +
       '<button class="nav-link' + (act === "about" ? " on" : "") + '" data-go="/about"><span class="mark">ℹ</span>Om</button>' +
       "</nav>" +
       "</aside>" +
@@ -79,12 +84,10 @@
   }
 
   function topBar(title) {
-    var label = S.user ? S.user : "Logga in";
     return (
       '<header class="top">' +
       '<button class="icon-btn" data-menu="1" title="Meny" aria-label="Meny">☰</button>' +
       "<h1>" + title + "</h1>" +
-      '<button class="login-btn" data-go="/login">' + label + "</button>" +
       "</header>"
     );
   }
@@ -106,7 +109,7 @@
       '<main class="view">' +
       '<div class="grid">' + tiles + "</div>" +
       '<p class="hint">En app. Moduler du vill ha. Reklamfritt.</p>' +
-      '<p class="foot">0.1.1 · skal</p>' +
+      '<p class="foot">0.1.2 · skal</p>' +
       "</main>"
     );
   }
@@ -148,7 +151,7 @@
       '<div class="about-box">' +
       "<h2>Om Taxi Wizard</h2>" +
       '<p class="hint">Skal för taximoduler. Flöde, logg och mer. Data ligger lokalt tills inlogg är klart.</p>' +
-      '<p class="foot">Version 0.1.1</p>' +
+      '<p class="foot">Version 0.1.2</p>' +
       "</div>" +
       "</main>"
     );
@@ -159,7 +162,7 @@
       '<main class="view">' +
       '<div class="login-box">' +
       "<h2>Konto</h2>" +
-      '<p class="hint">Riktig inlogg kommer. Just nu räcker ett namn som sparas i telefonen.</p>' +
+      '<p class="hint">Google / Apple-inlogg kommer. Just nu räcker ett namn som sparas i telefonen.</p>' +
       '<label for="loginName">Namn</label>' +
       '<input id="loginName" type="text" value="' + (S.user || "") + '" placeholder="Ditt namn">' +
       '<div class="login-actions">' +
@@ -223,7 +226,7 @@
   function titleFor(path) {
     if (path === "/settings") return "Inställningar";
     if (path === "/about") return "Om";
-    if (path === "/login") return "Logga in";
+    if (path === "/login") return "Konto";
     var id = path.replace(/^\//, "");
     var mod = TW_MODULES.filter(function (m) { return m.id === id; })[0];
     if (mod) return mod.name;
@@ -270,7 +273,12 @@
       body = slotView();
     } else body = homeView();
 
-    app.innerHTML = topBar(title) + drawerHtml() + '<div class="stage" id="stage">' + body + "</div>";
+    var hideTop = !!(mod && mod.embedNav);
+    app.classList.toggle("embed-nav", hideTop);
+    app.innerHTML =
+      (hideTop ? "" : topBar(title)) +
+      drawerHtml() +
+      '<div class="stage" id="stage">' + body + "</div>";
 
     if (mod && isOn(mod.id)) {
       var slot = document.getElementById("slot");
@@ -289,6 +297,10 @@
   window.TW = {
     register: function (id, mount) {
       mounts[id] = mount;
+    },
+    openMenu: function () {
+      menuOpen = true;
+      renderChromeOnly();
     }
   };
 
