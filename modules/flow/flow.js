@@ -85,10 +85,7 @@ TW.register("flow", function (el) {
     el.innerHTML =
       '<div class="flow" id="view-flode">' +
       '<div class="flode-sticky">' +
-      '<div class="flode-tabs">' +
-      '<button type="button" class="flode-menu" data-menu="1" title="Meny" aria-label="Meny">☰</button>' +
       '<div class="flode-icons" role="tablist" aria-label="Flöde">' + icons + "</div>" +
-      "</div>" +
       '<div class="flode-toolbar">' +
       '<div class="flode-tools-left">' +
       '<button type="button" class="flode-tool" id="flodeNowBtn" title="Hoppa till nu" aria-label="Hoppa till nu">' +
@@ -119,7 +116,6 @@ TW.register("flow", function (el) {
   }
 
   el.onclick = function (e) {
-    if (e.target.closest("[data-menu]")) return;
     var ic = e.target.closest("[data-flode]");
     if (ic) {
       tab = ic.getAttribute("data-flode");
