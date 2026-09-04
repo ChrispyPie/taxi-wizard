@@ -22,30 +22,11 @@
   background: var(--bg);
   padding: calc(4px + env(safe-area-inset-top)) 12px 4px;
 }
-.flode-tabs {
-  display: flex;
-  align-items: stretch;
-  gap: 8px;
-}
-.flode-menu {
-  flex: 0 0 48px;
-  width: 48px;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  background: var(--surface2);
-  color: var(--fg);
-  font-size: 1.15rem;
-  line-height: 1;
-  cursor: pointer;
-}
-.flode-menu:active { background: #222a3a; }
 .flode-icons {
   display: flex;
   gap: 8px;
   overflow-x: auto;
   padding: 2px 0 12px;
-  min-width: 0;
-  flex: 1;
   -webkit-overflow-scrolling: touch;
 }
 .flode-icon {
