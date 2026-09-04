@@ -20,13 +20,32 @@
   top: 0;
   z-index: 8;
   background: var(--bg);
-  padding: 2px 12px 4px;
+  padding: calc(4px + env(safe-area-inset-top)) 12px 4px;
 }
+.flode-tabs {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+}
+.flode-menu {
+  flex: 0 0 48px;
+  width: 48px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface2);
+  color: var(--fg);
+  font-size: 1.15rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.flode-menu:active { background: #222a3a; }
 .flode-icons {
   display: flex;
   gap: 8px;
   overflow-x: auto;
   padding: 2px 0 12px;
+  min-width: 0;
+  flex: 1;
   -webkit-overflow-scrolling: touch;
 }
 .flode-icon {
@@ -63,12 +82,14 @@
   align-items: center;
   gap: 8px;
 }
-.flode-tool, .feed-star#flodeStarAllBtn, .dir-mini {
+.flode-tool, .feed-star#flodeStarAllBtn {
   border: 1px solid #3a455c;
   border-radius: 10px;
   background: #151b27;
   min-width: 36px;
+  width: 36px;
   min-height: 32px;
+  height: 32px;
   display: grid;
   place-items: center;
   color: var(--muted);
@@ -78,19 +99,12 @@
 .flode-toolbar .feed-star { font-size: 1.15rem; color: var(--muted); }
 .flode-toolbar .feed-star.on { color: #f5b942; }
 
-.dir-mini {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0;
-  margin: 0 4px;
-  padding: 0 8px;
-  height: 32px;
-  cursor: pointer;
+.dir-btn {
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: .02em;
+  color: var(--fg);
 }
-.dir-mini b { font-size: 0.7rem; font-weight: 800; color: var(--muted); padding: 4px 0; }
-.dir-mini b.on { color: var(--fg); }
-.dir-mini i { font-style: normal; color: var(--muted); font-size: 0.7rem; opacity: .45; padding: 0 1px; }
 
 .flow-list {
   flex: 1;
