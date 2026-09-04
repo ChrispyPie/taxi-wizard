@@ -137,11 +137,27 @@
   background: rgba(59,130,246,.12);
 }
 
+.ptr {
+  height: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.ptr.on { color: var(--accent); }
+.ptr.spin { animation: ptrspin .7s linear infinite; }
+@keyframes ptrspin { to { transform: rotate(360deg); } }
+
 .flow-list {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
   padding: 0 12px calc(16px + env(safe-area-inset-bottom));
 }
 .flode-more {

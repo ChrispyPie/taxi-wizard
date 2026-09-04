@@ -13,6 +13,7 @@ TW.register("flow", function (el) {
   var placeOpen = false;
   var filterOpen = false;
   var savedScroll = 0;
+  var refreshing = false;
 
   var ICONS = [
     ["summary", "Allt", '<path d="M4 6h16M4 12h10M4 18h13"/>'],
@@ -92,7 +93,8 @@ TW.register("flow", function (el) {
       "<p><b>Flikar</b> — Allt, Sparat, eller ett trafikslag.</p>" +
       "<p><b>Ank / Avg</b> — ankomst eller avgång. Broar och event påverkas inte.</p>" +
       "<p><b>Plats</b> — station, flygplats eller ort för fliken. Fler platser kommer.</p>" +
-      "<p><b>Nu</b> — hoppa till nu. <b>↻</b> uppdaterar.</p>" +
+      "<p><b>Nu</b> — hoppa till nu.</p>" +
+      "<p><b>Uppdatera</b> — dra ner högst upp på sidan.</p>" +
       "<p><b>★</b> — spara en rad. Överst: märk eller rensa synliga rader.</p>" +
       "<p><b>Filter</b> — mer finlir, inte klart än.</p>" +
       '<button type="button" class="flow-card-ok" data-close-sheet="1">Stäng</button>' +
@@ -138,9 +140,6 @@ TW.register("flow", function (el) {
       '<button type="button" class="flode-tool" id="flodeNowBtn" title="Hoppa till nu" aria-label="Hoppa till nu">' +
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/></svg>' +
       "</button>" +
-      '<button type="button" class="flode-tool" id="flodeRefreshBtn" title="Uppdatera" aria-label="Uppdatera">' +
-      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-2.2-5.8"/><path d="M21 4v6h-6"/></svg>' +
-      "</button>" +
       '<button type="button" class="flode-tool dir-btn" id="dirMini" title="Byt Ank / Avg">' +
       (dir === "ank" ? "Ank" : "Avg") +
       "</button>" +
@@ -159,6 +158,7 @@ TW.register("flow", function (el) {
       "</div>" +
       "</div>" +
       "</div>" +
+      '<div class="ptr" id="ptrBar">↻</div>' +
       '<div class="flow-list" id="flodeScroll">' +
       '<div id="flodeList" class="card feed-card">' +
       '<button type="button" class="feed-more-past" id="flodeMorePast" aria-label="Visa en timme bakåt">⌃</button>' +
@@ -171,6 +171,7 @@ TW.register("flow", function (el) {
       filterHtml() +
       "</div>";
     bindRail();
+    bindPtr();
     hidePastEnd();
     var sc = document.getElementById("flodeScroll");
     if (sc && savedScroll > 8) sc.scrollTop = savedScroll;
@@ -242,6 +243,61 @@ TW.register("flow", function (el) {
     }
   };
 
+  function setPtr(pull, busy) {
+    var bar = document.getElementById("ptrBar");
+    if (!bar) return;
+    var h = busy ? 36 : Math.min(40, pull * 0.55);
+    bar.style.height = h + "px";
+    bar.classList.toggle("on", pull > 8 || busy);
+    bar.classList.toggle("spin", !!busy);
+    bar.textContent = busy ? "\u21bb" : (pull > 56 ? "Släpp" : "\u21bb");
+  }
+
+  function runRefresh() {
+    if (refreshing) return;
+    refreshing = true;
+    setPtr(80, true);
+    setTimeout(function () {
+      refreshing = false;
+      savedScroll = 0;
+      paint();
+    }, 500);
+  }
+
+  function bindPtr() {
+    var root = document.getElementById("view-flode");
+    if (!root || root.getAttribute("data-ptr") === "1") return;
+    root.setAttribute("data-ptr", "1");
+    var y0 = 0, x0 = 0, tracking = false, armed = false, pull = 0;
+    root.addEventListener("touchstart", function (e) {
+      if (refreshing || helpOpen || placeOpen || filterOpen) return;
+      if (e.target.closest(".flow-rail, .edge-handle, .flode-icons")) return;
+      var tch = e.changedTouches[0];
+      x0 = tch.clientX; y0 = tch.clientY; pull = 0;
+      var sc = document.getElementById("flodeScroll");
+      var inTop = !!e.target.closest(".flode-sticky");
+      var atTop = sc && sc.scrollTop <= 28;
+      armed = inTop || atTop;
+      tracking = armed;
+    }, { passive: true });
+    root.addEventListener("touchmove", function (e) {
+      if (!tracking || !armed) return;
+      var tch = e.changedTouches[0];
+      var dx = tch.clientX - x0, dy = tch.clientY - y0;
+      if (Math.abs(dx) > dy && dy < 12) { tracking = false; setPtr(0, false); return; }
+      if (dy < 0) { pull = 0; setPtr(0, false); return; }
+      pull = dy;
+      setPtr(pull, false);
+    }, { passive: true });
+    root.addEventListener("touchend", function () {
+      if (!tracking) return;
+      tracking = false; armed = false;
+      if (pull > 56) runRefresh();
+      else setPtr(0, false);
+      pull = 0;
+    }, { passive: true });
+  }
+
   function hidePastEnd() {
     var sc = document.getElementById("flodeScroll");
     var past = document.getElementById("flodeMorePast");
@@ -255,13 +311,13 @@ TW.register("flow", function (el) {
     h.setAttribute("data-bound", "1");
     var x0 = 0, y0 = 0, tracking = false;
     h.addEventListener("touchstart", function (e) {
-      var t = e.changedTouches[0];
-      x0 = t.clientX; y0 = t.clientY; tracking = true;
+      var tch = e.changedTouches[0];
+      x0 = tch.clientX; y0 = tch.clientY; tracking = true;
     }, { passive: true });
     h.addEventListener("touchmove", function (e) {
       if (!tracking) return;
-      var t = e.changedTouches[0];
-      var dx = t.clientX - x0, dy = t.clientY - y0;
+      var tch = e.changedTouches[0];
+      var dx = tch.clientX - x0, dy = tch.clientY - y0;
       if (dx < -36 && Math.abs(dx) > Math.abs(dy)) {
         tracking = false;
         filterOpen = true;
