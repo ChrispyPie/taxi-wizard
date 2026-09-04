@@ -10,8 +10,6 @@
   display: flex;
   flex-direction: column;
   min-height: 0;
-  height: 100%;
-  overflow: hidden;
   background: var(--bg);
 }
 
@@ -137,27 +135,7 @@
   background: rgba(59,130,246,.12);
 }
 
-.ptr {
-  height: 0;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--muted);
-  font-size: 0.85rem;
-  font-weight: 700;
-  flex-shrink: 0;
-}
-.ptr.on { color: var(--accent); }
-.ptr.spin { animation: ptrspin .7s linear infinite; }
-@keyframes ptrspin { to { transform: rotate(360deg); } }
-
 .flow-list {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior: contain;
   padding: 0 12px calc(16px + env(safe-area-inset-bottom));
 }
 .flode-more {
@@ -237,7 +215,7 @@
 }
 
 .flow-sheet {
-  position: absolute; inset: 0; background: rgba(0,0,0,.45); z-index: 20;
+  position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 20;
   display: flex; align-items: flex-end; padding: 12px;
   padding-bottom: calc(12px + env(safe-area-inset-bottom));
 }
@@ -252,7 +230,7 @@
 }
 
 .flow-rail {
-  position: absolute; right: 0; top: 50%; transform: translateY(-50%);
+  position: fixed; right: 0; top: 50%; transform: translateY(-50%);
   z-index: 12; width: 20px; height: 52px;
   border: 1px solid var(--border); border-right: 0;
   border-radius: 12px 0 0 12px; background: #151922; color: var(--muted);
@@ -260,12 +238,12 @@
 }
 .flow-rail.hide { opacity: 0; pointer-events: none; }
 .flow-scrim {
-  position: absolute; inset: 0; background: rgba(0,0,0,.45);
+  position: fixed; inset: 0; background: rgba(0,0,0,.45);
   z-index: 18; opacity: 0; pointer-events: none;
 }
 .flow-scrim.on { opacity: 1; pointer-events: auto; }
 .flow-drawer {
-  position: absolute; top: 0; right: 0; bottom: 0; width: min(78vw, 280px);
+  position: fixed; top: 0; right: 0; bottom: 0; width: min(78vw, 280px);
   background: #10141c; border-left: 1px solid var(--border); z-index: 19;
   transform: translateX(105%); transition: transform .2s ease;
   padding: calc(12px + env(safe-area-inset-top)) 14px env(safe-area-inset-bottom);
