@@ -12,6 +12,7 @@ TW.register("flow", function (el) {
   var helpOpen = false;
   var placeOpen = false;
   var filterOpen = false;
+  var savedScroll = 0;
 
   var ICONS = [
     ["summary", "Allt", '<path d="M4 6h16M4 12h10M4 18h13"/>'],
@@ -112,6 +113,8 @@ TW.register("flow", function (el) {
   }
 
   function paint() {
+    var sc0 = document.getElementById("flodeScroll");
+    if (sc0) savedScroll = sc0.scrollTop;
     var icons = ICONS.map(function (ic) {
       return (
         '<button type="button" class="flode-icon' + (tab === ic[0] ? " on" : "") + '" data-flode="' + ic[0] + '">' +
@@ -157,8 +160,10 @@ TW.register("flow", function (el) {
       "</div>" +
       "</div>" +
       '<div class="flow-list" id="flodeScroll">' +
-      '<button type="button" class="flode-more" id="flodeMorePast" aria-label="Visa en timme bakåt">⌃</button>' +
-      '<div id="flodeList" class="card feed-card">' + list + "</div>" +
+      '<div id="flodeList" class="card feed-card">' +
+      '<button type="button" class="feed-more-past" id="flodeMorePast" aria-label="Visa en timme bakåt">⌃</button>' +
+      list +
+      "</div>" +
       '<button type="button" class="flode-more" id="flodeMoreFuture" aria-label="Visa en timme framåt">⌄</button>' +
       '<p class="hint" id="flodeHint">Flöde = tider. Olyckor och köer ligger under TRAFIK-kartan.</p>' +
       "</div>" +
@@ -166,6 +171,9 @@ TW.register("flow", function (el) {
       filterHtml() +
       "</div>";
     bindRail();
+    hidePastEnd();
+    var sc = document.getElementById("flodeScroll");
+    if (sc && savedScroll > 8) sc.scrollTop = savedScroll;
   }
 
   el.onclick = function (e) {
@@ -233,6 +241,13 @@ TW.register("flow", function (el) {
       paint();
     }
   };
+
+  function hidePastEnd() {
+    var sc = document.getElementById("flodeScroll");
+    var past = document.getElementById("flodeMorePast");
+    if (!sc || !past) return;
+    sc.scrollTop = past.offsetHeight;
+  }
 
   function bindRail() {
     var h = document.getElementById("filterRail");
