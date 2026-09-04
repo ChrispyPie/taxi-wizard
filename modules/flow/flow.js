@@ -85,7 +85,10 @@ TW.register("flow", function (el) {
     el.innerHTML =
       '<div class="flow" id="view-flode">' +
       '<div class="flode-sticky">' +
+      '<div class="flode-tabs">' +
+      '<button type="button" class="flode-menu" data-menu="1" title="Meny" aria-label="Meny">☰</button>' +
       '<div class="flode-icons" role="tablist" aria-label="Flöde">' + icons + "</div>" +
+      "</div>" +
       '<div class="flode-toolbar">' +
       '<div class="flode-tools-left">' +
       '<button type="button" class="flode-tool" id="flodeNowBtn" title="Hoppa till nu" aria-label="Hoppa till nu">' +
@@ -94,7 +97,9 @@ TW.register("flow", function (el) {
       '<button type="button" class="flode-tool" id="flodeRefreshBtn" title="Uppdatera" aria-label="Uppdatera">' +
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-2.2-5.8"/><path d="M21 4v6h-6"/></svg>' +
       "</button>" +
-      '<div id="dirMini" class="dir-mini"><b id="dirAnk"' + (dir === "ank" ? ' class="on"' : "") + '>Ank</b><i>/</i><b id="dirAvg"' + (dir === "avg" ? ' class="on"' : "") + ">Avg</b></div>" +
+      '<button type="button" class="flode-tool dir-btn" id="dirMini" title="Byt Ank / Avg">' +
+      (dir === "ank" ? "Ank" : "Avg") +
+      "</button>" +
       "</div>" +
       '<div class="flode-tools-right">' +
       '<button type="button" class="flode-tool" id="flodeFilterBtn" title="Filter" aria-label="Filter">' +
@@ -114,6 +119,7 @@ TW.register("flow", function (el) {
   }
 
   el.onclick = function (e) {
+    if (e.target.closest("[data-menu]")) return;
     var ic = e.target.closest("[data-flode]");
     if (ic) {
       tab = ic.getAttribute("data-flode");
