@@ -11,6 +11,7 @@ TW.register("flow", function (el) {
   var openId = "demo-cph";
   var helpOpen = false;
   var placeOpen = false;
+  var filterOpen = false;
 
   var ICONS = [
     ["summary", "Allt", '<path d="M4 6h16M4 12h10M4 18h13"/>'],
@@ -100,6 +101,18 @@ TW.register("flow", function (el) {
     );
   }
 
+  function filterHtml() {
+    return (
+      '<button type="button" class="flow-rail' + (filterOpen ? " hide" : "") + '" id="filterRail" aria-label="Filter">‹</button>' +
+      '<div class="flow-scrim' + (filterOpen ? " on" : "") + '" data-close-sheet="1"></div>' +
+      '<aside class="flow-drawer' + (filterOpen ? " on" : "") + '">' +
+      "<h3>Filter</h3>" +
+      "<p>Här kommer extra filter. Inte klart än.</p>" +
+      '<button type="button" class="flow-card-ok" data-close-sheet="1">Stäng</button>' +
+      "</aside>"
+    );
+  }
+
   function placeHtml() {
     if (!placeOpen) return "";
     var cur = placeKey();
@@ -157,9 +170,6 @@ TW.register("flow", function (el) {
       placeLabel() + " ▾</button>" +
       '<div class="flode-tools-right">' +
       '<button type="button" class="flode-tool" id="helpBtn" title="Hjälp" aria-label="Hjälp">?</button>' +
-      '<button type="button" class="flode-tool" id="flodeFilterBtn" title="Filter" aria-label="Filter">' +
-      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M7 12h10M10 18h4"/></svg>' +
-      "</button>" +
       '<button type="button" class="feed-star" id="flodeStarAllBtn" title="Märk eller rensa listan" aria-label="Märk alla">★</button>' +
       "</div>" +
       "</div>" +
@@ -172,11 +182,21 @@ TW.register("flow", function (el) {
       "</div>" +
       helpHtml() +
       placeHtml() +
+      filterHtml() +
       "</div>";
+    bindRail();
   }
 
   el.onclick = function (e) {
     if (e.target.closest("[data-close-sheet]")) {
+      helpOpen = false;
+      placeOpen = false;
+      filterOpen = false;
+      paint();
+      return;
+    }
+    if (e.target.closest("#filterRail")) {
+      filterOpen = !filterOpen;
       helpOpen = false;
       placeOpen = false;
       paint();
@@ -187,6 +207,7 @@ TW.register("flow", function (el) {
       tab = ic.getAttribute("data-flode");
       helpOpen = false;
       placeOpen = false;
+      filterOpen = false;
       paint();
       return;
     }
@@ -198,12 +219,14 @@ TW.register("flow", function (el) {
     if (e.target.closest("#helpBtn")) {
       helpOpen = !helpOpen;
       placeOpen = false;
+      filterOpen = false;
       paint();
       return;
     }
     if (e.target.closest("#placeBtn")) {
       placeOpen = !placeOpen;
       helpOpen = false;
+      filterOpen = false;
       paint();
       return;
     }
@@ -219,6 +242,30 @@ TW.register("flow", function (el) {
       paint();
     }
   };
+
+  function bindRail() {
+    var h = document.getElementById("filterRail");
+    if (!h || h.getAttribute("data-bound") === "1") return;
+    h.setAttribute("data-bound", "1");
+    var x0 = 0, y0 = 0, tracking = false;
+    h.addEventListener("touchstart", function (e) {
+      var t = e.changedTouches[0];
+      x0 = t.clientX; y0 = t.clientY; tracking = true;
+    }, { passive: true });
+    h.addEventListener("touchmove", function (e) {
+      if (!tracking) return;
+      var t = e.changedTouches[0];
+      var dx = t.clientX - x0, dy = t.clientY - y0;
+      if (dx < -36 && Math.abs(dx) > Math.abs(dy)) {
+        tracking = false;
+        filterOpen = true;
+        helpOpen = false;
+        placeOpen = false;
+        paint();
+      }
+    }, { passive: true });
+    h.addEventListener("touchend", function () { tracking = false; }, { passive: true });
+  }
 
   paint();
 });
