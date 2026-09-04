@@ -114,6 +114,7 @@ TW.register("flow", function (el) {
   }
 
   function paint() {
+    savedScroll = window.scrollY || 0;
     var icons = ICONS.map(function (ic) {
       return (
         '<button type="button" class="flode-icon' + (tab === ic[0] ? " on" : "") + '" data-flode="' + ic[0] + '">' +
@@ -130,7 +131,7 @@ TW.register("flow", function (el) {
 
     el.innerHTML =
       '<div class="flow" id="view-flode">' +
-      '<div class="flode-sticky">' +
+      '<div class="flode-sticky" id="flodeSticky">' +
       '<div class="flode-icons" role="tablist" aria-label="Flöde">' + icons + "</div>" +
       '<div class="flode-toolbar">' +
       '<div class="flode-tools-left">' +
@@ -167,6 +168,8 @@ TW.register("flow", function (el) {
       filterHtml() +
       "</div>";
     bindRail();
+    pinChrome();
+    if (savedScroll) window.scrollTo(0, savedScroll);
   }
 
   el.onclick = function (e) {
@@ -234,6 +237,13 @@ TW.register("flow", function (el) {
       paint();
     }
   };
+
+  function pinChrome() {
+    var bar = document.getElementById("flodeSticky");
+    var list = document.getElementById("flodeScroll");
+    if (!bar || !list) return;
+    list.style.paddingTop = bar.offsetHeight + "px";
+  }
 
   function bindRail() {
     var h = document.getElementById("filterRail");
