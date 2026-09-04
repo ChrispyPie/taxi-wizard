@@ -114,7 +114,7 @@
   function slotView(mod) {
     return (
       topBar(mod.name, true) +
-      '<main class="view" id="slot"><p class="empty">Laddar…</p></main>'
+      '<main class="view slot" id="slot"><p class="empty">Laddar…</p></main>'
     );
   }
 
