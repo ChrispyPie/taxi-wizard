@@ -23,11 +23,11 @@ TW.register("flow", function (el) {
     ["event", "Event", '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>']
   ];
 
-  var PLACES = [
-    ["flyg", "Landvetter Flp"],
-    ["tag", "Göteborg C"],
-    ["city", "Göteborg"]
-  ];
+  var PLACES = {
+    flyg: ["Landvetter Flp"],
+    tag: ["Göteborg C"],
+    other: ["Göteborg"]
+  };
 
   var DEMO = [
     { id: "demo-cph", type: "flyg", dir: "ANK", city: "Köpenhamn", title: "SK448", event: "Landat", t: "11:22", planT: "(11:15)", delay: "+7", delayCls: "late", extra: [["Land", "Danmark"], ["Gate", "16"], ["Bagage", "Sista 11:38"]] },
@@ -42,16 +42,14 @@ TW.register("flow", function (el) {
     { id: "demo-ev", type: "event", dir: "", city: "Ullevi", title: "Evenemang", event: "Demo — tas bort", t: "19:00", planT: "(19:00)", extra: [["Info", "Egna ikoner senare"]] }
   ];
 
-  function placeKey() {
-    if (tab === "flyg") return "flyg";
-    if (tab === "tag") return "tag";
-    return "city";
+  function placeList() {
+    if (tab === "flyg") return PLACES.flyg;
+    if (tab === "tag") return PLACES.tag;
+    return PLACES.other;
   }
 
   function placeLabel() {
-    var k = placeKey();
-    var hit = PLACES.filter(function (p) { return p[0] === k; })[0];
-    return hit ? hit[1] : "Göteborg";
+    return placeList()[0];
   }
 
   function visible(r) {
@@ -113,28 +111,6 @@ TW.register("flow", function (el) {
     );
   }
 
-  function placeHtml() {
-    if (!placeOpen) return "";
-    var cur = placeKey();
-    var rows = PLACES.map(function (p) {
-      var on = p[0] === cur;
-      return (
-        '<button type="button" class="place-row' + (on ? " on" : "") + '" disabled>' +
-        p[1] + (on ? "" : '<span>snart</span>') +
-        "</button>"
-      );
-    }).join("");
-    return (
-      '<div class="flow-sheet" data-close-sheet="1">' +
-      '<div class="flow-card">' +
-      "<h3>Plats</h3>" +
-      "<p>Byt station, flygplats eller ort. Just nu bara Göteborg.</p>" +
-      rows +
-      '<button type="button" class="flow-card-ok" data-close-sheet="1">Stäng</button>' +
-      "</div></div>"
-    );
-  }
-
   function paint() {
     var icons = ICONS.map(function (ic) {
       return (
@@ -166,8 +142,14 @@ TW.register("flow", function (el) {
       (dir === "ank" ? "Ank" : "Avg") +
       "</button>" +
       "</div>" +
+      '<div class="flode-place-wrap' + (placeOpen ? " open" : "") + '">' +
       '<button type="button" class="flode-place" id="placeBtn" title="Plats">' +
       placeLabel() + " ▾</button>" +
+      '<div class="place-menu">' +
+      placeList().map(function (name) {
+        return '<button type="button" class="place-opt on">' + name + "</button>";
+      }).join("") +
+      "</div></div>" +
       '<div class="flode-tools-right">' +
       '<button type="button" class="flode-tool" id="helpBtn" title="Hjälp" aria-label="Hjälp">?</button>' +
       '<button type="button" class="feed-star" id="flodeStarAllBtn" title="Märk eller rensa listan" aria-label="Märk alla">★</button>' +
@@ -181,13 +163,22 @@ TW.register("flow", function (el) {
       '<p class="hint" id="flodeHint">Flöde = tider. Olyckor och köer ligger under TRAFIK-kartan.</p>' +
       "</div>" +
       helpHtml() +
-      placeHtml() +
       filterHtml() +
       "</div>";
     bindRail();
   }
 
   el.onclick = function (e) {
+    if (placeOpen && !e.target.closest(".flode-place-wrap")) {
+      placeOpen = false;
+      paint();
+      return;
+    }
+    if (e.target.closest(".place-opt")) {
+      placeOpen = false;
+      paint();
+      return;
+    }
     if (e.target.closest("[data-close-sheet]")) {
       helpOpen = false;
       placeOpen = false;
