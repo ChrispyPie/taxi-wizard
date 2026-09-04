@@ -5,7 +5,8 @@ window.TW_MODULES = [
     name: "Flöde",
     desc: "Flyg, tåg, båt, broar",
     mark: "◎",
-    src: "modules/flow/flow.js"
+    src: "modules/flow/flow.js",
+    embedNav: true
   },
   {
     id: "logg",
