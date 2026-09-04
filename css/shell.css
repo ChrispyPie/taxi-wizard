@@ -11,6 +11,7 @@
   --pad: 12px;
   --fs: 16px;
   --radius: 14px;
+  --header-h: 52px;
 }
 
 [data-size="sm"] { --fs: 15px; }
@@ -19,7 +20,13 @@
 [data-size="xl"] { --fs: 20px; }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { height: 100%; background: var(--bg); color: var(--text); }
+html, body {
+  height: 100%;
+  height: 100dvh;
+  background: var(--bg);
+  color: var(--text);
+  overflow: hidden;
+}
 body {
   font: var(--fs)/1.4 "Segoe UI", system-ui, -apple-system, sans-serif;
   -webkit-tap-highlight-color: transparent;
@@ -27,36 +34,67 @@ body {
   margin: 0 auto;
 }
 
-#app { min-height: 100%; height: 100%; display: flex; flex-direction: column; }
+#app {
+  min-height: 100%;
+  height: 100%;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
 
 .top {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: calc(8px + env(safe-area-inset-top)) var(--pad) 8px;
+  padding: calc(6px + env(safe-area-inset-top)) var(--pad) 6px;
   border-bottom: 1px solid var(--line);
-  background: rgba(12, 14, 18, 0.94);
-  position: sticky;
-  top: 0;
-  z-index: 20;
+  background: #0c0e12;
+  position: relative;
+  z-index: 30;
   flex-shrink: 0;
 }
-.top h1 { font-size: 1em; font-weight: 750; margin: 0; flex: 1; letter-spacing: .04em; }
+.top h1 { font-size: 1em; font-weight: 750; margin: 0; flex: 1; letter-spacing: .04em; text-align: center; }
 .icon-btn {
   width: 40px; height: 40px;
   border: 0; background: transparent; color: var(--text);
-  border-radius: 10px; font-size: 1.15em; cursor: pointer;
+  border-radius: 10px; font-size: 1.2em; cursor: pointer;
+  flex-shrink: 0;
 }
 .icon-btn:active { background: var(--bg3); }
+.login-btn {
+  flex-shrink: 0;
+  border: 1px solid var(--line);
+  background: var(--bg2);
+  color: var(--text);
+  border-radius: 10px;
+  padding: 7px 10px;
+  font: inherit;
+  font-size: .82em;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.login-btn:active { border-color: var(--accent); }
+
+.stage {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
 
 .view {
   flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   padding: var(--pad);
   padding-bottom: calc(var(--pad) + env(safe-area-inset-bottom));
 }
 .view.slot {
   padding: 0;
-  min-height: 0;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -115,3 +153,91 @@ body {
 
 .empty { color: var(--muted); padding: 24px 14px; }
 .foot { color: var(--muted); font-size: .75em; margin-top: 28px; }
+
+.scrim {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .45);
+  z-index: 40;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s ease;
+}
+.scrim.on { opacity: 1; pointer-events: auto; }
+
+.drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: min(82vw, 300px);
+  background: #10141c;
+  border-right: 1px solid var(--line);
+  z-index: 50;
+  transform: translateX(-105%);
+  transition: transform .22s ease;
+  display: flex;
+  flex-direction: column;
+  padding: calc(10px + env(safe-area-inset-top)) 0 env(safe-area-inset-bottom);
+}
+.drawer.on { transform: translateX(0); }
+.drawer-head {
+  padding: 8px 16px 14px;
+  border-bottom: 1px solid var(--line);
+}
+.drawer-head strong { display: block; font-size: 1em; }
+.drawer-head span { color: var(--muted); font-size: .78em; }
+.drawer nav { padding: 8px 8px; overflow-y: auto; }
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  text-align: left;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  padding: 11px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+.nav-link .mark { color: var(--muted); width: 1.2em; text-align: center; }
+.nav-link.on {
+  background: rgba(59, 130, 246, .14);
+  color: var(--accent);
+}
+.nav-link.on .mark { color: var(--accent); }
+.nav-sep {
+  height: 1px;
+  background: var(--line);
+  margin: 8px 12px;
+}
+
+.login-box, .about-box { max-width: 420px; }
+.login-box label { display: block; font-size: .82em; color: var(--muted); margin: 12px 0 4px; }
+.login-box input {
+  width: 100%;
+  background: var(--bg2);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font: inherit;
+}
+.login-actions { display: flex; gap: 8px; margin-top: 16px; }
+.login-actions button {
+  border: 1px solid var(--line);
+  background: var(--bg2);
+  color: var(--text);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.login-actions button.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}

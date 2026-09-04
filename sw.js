@@ -1,6 +1,6 @@
 self.addEventListener("install", function (e) {
   e.waitUntil(
-    caches.open("tw-0.1.0").then(function (c) {
+    caches.open("tw-0.1.1").then(function (c) {
       return c.addAll([
         "./",
         "index.html",
@@ -15,14 +15,28 @@ self.addEventListener("install", function (e) {
 });
 
 self.addEventListener("activate", function (e) {
-  e.waitUntil(self.clients.claim());
+  e.waitUntil(
+    caches.keys().then(function (keys) {
+      return Promise.all(
+        keys.filter(function (k) { return k !== "tw-0.1.1"; }).map(function (k) {
+          return caches.delete(k);
+        })
+      );
+    }).then(function () {
+      return self.clients.claim();
+    })
+  );
 });
 
 self.addEventListener("fetch", function (e) {
   if (e.request.method !== "GET") return;
   e.respondWith(
-    caches.match(e.request).then(function (hit) {
-      return hit || fetch(e.request);
+    fetch(e.request).then(function (res) {
+      var copy = res.clone();
+      caches.open("tw-0.1.1").then(function (c) { c.put(e.request, copy); });
+      return res;
+    }).catch(function () {
+      return caches.match(e.request);
     })
   );
 });

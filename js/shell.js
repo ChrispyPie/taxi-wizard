@@ -3,6 +3,7 @@
   var loaded = {};
   var mounts = {};
   var app = document.getElementById("app");
+  var menuOpen = false;
 
   function loadSettings() {
     try {
@@ -12,10 +13,10 @@
     }
   }
 
-  var S = Object.assign({ size: "md", off: {} }, loadSettings());
+  var S = Object.assign({ size: "md", off: {}, user: "" }, loadSettings());
 
   function save() {
-    localStorage.setItem(KEY, JSON.stringify({ size: S.size, off: S.off }));
+    localStorage.setItem(KEY, JSON.stringify({ size: S.size, off: S.off, user: S.user || "" }));
   }
 
   function applySize() {
@@ -27,6 +28,7 @@
   }
 
   function go(path) {
+    menuOpen = false;
     if (location.hash !== "#" + path) location.hash = path;
     else render();
   }
@@ -42,14 +44,47 @@
     render();
   }
 
-  function topBar(title, back) {
+  function activeId() {
+    var path = hash();
+    if (path === "/settings") return "settings";
+    if (path === "/about") return "about";
+    if (path === "/login") return "login";
+    var id = path.replace(/^\//, "");
+    if (TW_MODULES.filter(function (m) { return m.id === id; })[0]) return id;
+    return "home";
+  }
+
+  function drawerHtml() {
+    var act = activeId();
+    var mods = TW_MODULES.map(function (m) {
+      return (
+        '<button class="nav-link' + (act === m.id ? " on" : "") + '" data-go="/' + m.id + '">' +
+        '<span class="mark">' + m.mark + "</span>" + m.name +
+        "</button>"
+      );
+    }).join("");
+    return (
+      '<aside class="drawer' + (menuOpen ? " on" : "") + '" id="drawer">' +
+      '<div class="drawer-head"><strong>Taxi Wizard</strong><span>Skal + moduler</span></div>' +
+      "<nav>" +
+      '<button class="nav-link' + (act === "home" ? " on" : "") + '" data-go="/"><span class="mark">⌂</span>Hem</button>' +
+      mods +
+      '<div class="nav-sep"></div>' +
+      '<button class="nav-link' + (act === "settings" ? " on" : "") + '" data-go="/settings"><span class="mark">⚙</span>Inställningar</button>' +
+      '<button class="nav-link' + (act === "about" ? " on" : "") + '" data-go="/about"><span class="mark">ℹ</span>Om</button>' +
+      "</nav>" +
+      "</aside>" +
+      '<div class="scrim' + (menuOpen ? " on" : "") + '" data-close-menu="1"></div>'
+    );
+  }
+
+  function topBar(title) {
+    var label = S.user ? S.user : "Logga in";
     return (
       '<header class="top">' +
-      (back
-        ? '<button class="icon-btn" data-go="/">←</button>'
-        : '<span class="icon-btn" aria-hidden="true"></span>') +
+      '<button class="icon-btn" data-menu="1" title="Meny" aria-label="Meny">☰</button>' +
       "<h1>" + title + "</h1>" +
-      '<button class="icon-btn" data-go="/settings" title="Inställningar">⚙</button>' +
+      '<button class="login-btn" data-go="/login">' + label + "</button>" +
       "</header>"
     );
   }
@@ -68,11 +103,10 @@
       .join("");
     if (!tiles) tiles = '<p class="empty">Inga moduler på. Öppna inställningar.</p>';
     return (
-      topBar("Taxi Wizard", false) +
       '<main class="view">' +
       '<div class="grid">' + tiles + "</div>" +
       '<p class="hint">En app. Moduler du vill ha. Reklamfritt.</p>' +
-      '<p class="foot">0.1.0 · skal</p>' +
+      '<p class="foot">0.1.1 · skal</p>' +
       "</main>"
     );
   }
@@ -99,27 +133,60 @@
       );
     }).join("");
     return (
-      topBar("Inställningar", true) +
       '<main class="view">' +
       '<div class="row"><div><h3>Textstorlek</h3><p>För telefon och surfplatta i bilen.</p></div></div>' +
       '<div class="sizes">' + sizeBtns + "</div>" +
       '<div class="row" style="margin-top:18px"><div><h3>Moduler</h3><p>Visa eller dölj rutor på startsidan.</p></div></div>' +
       mods +
-      '<div class="row"><div><h3>Konto</h3><p>Inlogg kommer. Data ligger lokalt tills vidare.</p></div>' +
-      '<button class="ghost" disabled>Senare</button></div>' +
       "</main>"
     );
   }
 
-  function slotView(mod) {
+  function aboutView() {
     return (
-      topBar(mod.name, true) +
-      '<main class="view slot" id="slot"><p class="empty">Laddar…</p></main>'
+      '<main class="view">' +
+      '<div class="about-box">' +
+      "<h2>Om Taxi Wizard</h2>" +
+      '<p class="hint">Skal för taximoduler. Flöde, logg och mer. Data ligger lokalt tills inlogg är klart.</p>' +
+      '<p class="foot">Version 0.1.1</p>' +
+      "</div>" +
+      "</main>"
     );
+  }
+
+  function loginView() {
+    return (
+      '<main class="view">' +
+      '<div class="login-box">' +
+      "<h2>Konto</h2>" +
+      '<p class="hint">Riktig inlogg kommer. Just nu räcker ett namn som sparas i telefonen.</p>' +
+      '<label for="loginName">Namn</label>' +
+      '<input id="loginName" type="text" value="' + (S.user || "") + '" placeholder="Ditt namn">' +
+      '<div class="login-actions">' +
+      '<button class="primary" data-login="save">Spara</button>' +
+      (S.user ? '<button data-login="out">Logga ut</button>' : "") +
+      "</div>" +
+      "</div>" +
+      "</main>"
+    );
+  }
+
+  function slotView() {
+    return '<main class="view slot" id="slot"><p class="empty">Laddar…</p></main>';
   }
 
   function bind() {
     app.onclick = function (e) {
+      if (e.target.closest("[data-close-menu]")) {
+        menuOpen = false;
+        renderChromeOnly();
+        return;
+      }
+      if (e.target.closest("[data-menu]")) {
+        menuOpen = !menuOpen;
+        renderChromeOnly();
+        return;
+      }
       var goEl = e.target.closest("[data-go]");
       if (goEl) {
         go(goEl.getAttribute("data-go"));
@@ -137,8 +204,37 @@
       if (modEl) {
         var id = modEl.getAttribute("data-mod");
         setOn(id, !isOn(id));
+        return;
+      }
+      var loginEl = e.target.closest("[data-login]");
+      if (loginEl) {
+        var act = loginEl.getAttribute("data-login");
+        if (act === "out") S.user = "";
+        else {
+          var inp = document.getElementById("loginName");
+          S.user = inp ? String(inp.value || "").trim() : "";
+        }
+        save();
+        go("/");
       }
     };
+  }
+
+  function titleFor(path) {
+    if (path === "/settings") return "Inställningar";
+    if (path === "/about") return "Om";
+    if (path === "/login") return "Logga in";
+    var id = path.replace(/^\//, "");
+    var mod = TW_MODULES.filter(function (m) { return m.id === id; })[0];
+    if (mod) return mod.name;
+    return "Taxi Wizard";
+  }
+
+  function renderChromeOnly() {
+    var drawer = document.getElementById("drawer");
+    var scrim = document.querySelector(".scrim");
+    if (drawer) drawer.classList.toggle("on", menuOpen);
+    if (scrim) scrim.classList.toggle("on", menuOpen);
   }
 
   function loadScript(src) {
@@ -158,31 +254,36 @@
   function render() {
     applySize();
     var path = hash();
-    if (path === "/settings") {
-      app.innerHTML = settingsView();
-      return;
-    }
+    var title = titleFor(path);
+    var body = "";
     var id = path.replace(/^\//, "");
     var mod = TW_MODULES.filter(function (m) { return m.id === id; })[0];
-    if (!mod) {
-      app.innerHTML = homeView();
-      return;
+
+    if (path === "/settings") body = settingsView();
+    else if (path === "/about") body = aboutView();
+    else if (path === "/login") body = loginView();
+    else if (mod) {
+      if (!isOn(mod.id)) {
+        go("/");
+        return;
+      }
+      body = slotView();
+    } else body = homeView();
+
+    app.innerHTML = topBar(title) + drawerHtml() + '<div class="stage" id="stage">' + body + "</div>";
+
+    if (mod && isOn(mod.id)) {
+      var slot = document.getElementById("slot");
+      loadScript(mod.src)
+        .then(function () {
+          var fn = mounts[mod.id];
+          if (fn) fn(slot, { go: go, settings: S });
+          else slot.innerHTML = '<p class="empty">Modulen laddades men registrerade sig inte.</p>';
+        })
+        .catch(function () {
+          slot.innerHTML = '<p class="empty">Kunde inte ladda modulen.</p>';
+        });
     }
-    if (!isOn(mod.id)) {
-      go("/");
-      return;
-    }
-    app.innerHTML = slotView(mod);
-    var slot = document.getElementById("slot");
-    loadScript(mod.src)
-      .then(function () {
-        var fn = mounts[mod.id];
-        if (fn) fn(slot, { go: go, settings: S });
-        else slot.innerHTML = '<p class="empty">Modulen laddades men registrerade sig inte.</p>';
-      })
-      .catch(function () {
-        slot.innerHTML = '<p class="empty">Kunde inte ladda modulen.</p>';
-      });
   }
 
   window.TW = {
