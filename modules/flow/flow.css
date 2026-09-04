@@ -14,10 +14,13 @@
 }
 
 .flode-sticky {
-  flex-shrink: 0;
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: 8;
+  max-width: 480px;
+  margin: 0 auto;
   background: var(--bg);
   padding: calc(4px + env(safe-area-inset-top)) 12px 0;
 }
