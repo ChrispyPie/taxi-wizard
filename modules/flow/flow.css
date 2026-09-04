@@ -6,6 +6,7 @@
   --surface2: #1c2230;
   --border: #2a3142;
   --accent: #3b82f6;
+  position: relative;
   display: flex;
   flex-direction: column;
   min-height: 0;
@@ -55,13 +56,14 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 8px;
   padding: 6px 0 8px;
 }
 .flode-tools-left, .flode-tools-right {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-shrink: 0;
 }
 .flode-tool, .feed-star#flodeStarAllBtn {
   border: 1px solid #3a455c;
@@ -85,6 +87,24 @@
   font-weight: 800;
   letter-spacing: .02em;
   color: var(--fg);
+}
+
+.flode-place {
+  flex: 1;
+  min-width: 0;
+  height: 32px;
+  border: 1px solid #3a455c;
+  border-radius: 10px;
+  background: #151b27;
+  color: var(--fg);
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 750;
+  padding: 0 8px;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .flow-list {
@@ -208,3 +228,50 @@
   padding-right: 10px;
   border-radius: 10px;
 }
+
+.flow-sheet {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,.45);
+  z-index: 20;
+  display: flex;
+  align-items: flex-end;
+  padding: 12px;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom));
+}
+.flow-card {
+  width: 100%;
+  background: #151922;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
+}
+.flow-card h3 { margin: 0 0 8px; font-size: 1em; }
+.flow-card p { margin: 0 0 8px; color: var(--muted); font-size: .86rem; }
+.flow-card p b { color: var(--fg); }
+.flow-card-ok {
+  width: 100%;
+  margin-top: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--fg);
+  border-radius: 10px;
+  padding: 10px;
+  font: inherit;
+  font-weight: 700;
+}
+.place-row {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  text-align: left;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--fg);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 6px;
+  font: inherit;
+}
+.place-row.on { border-color: rgba(59,130,246,.5); color: var(--accent); }
+.place-row span { color: var(--muted); font-size: .78em; }
