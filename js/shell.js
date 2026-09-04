@@ -1,5 +1,6 @@
 (function () {
   var KEY = "tw-settings";
+  var HINT_KEY = "tw-menu-hint";
   var loaded = {};
   var mounts = {};
   var app = document.getElementById("app");
@@ -17,6 +18,20 @@
 
   function save() {
     localStorage.setItem(KEY, JSON.stringify({ size: S.size, off: S.off, user: S.user || "" }));
+  }
+
+  function hintSeen() {
+    try {
+      return localStorage.getItem(HINT_KEY) === "1";
+    } catch (e) {
+      return true;
+    }
+  }
+
+  function markHint() {
+    try {
+      localStorage.setItem(HINT_KEY, "1");
+    } catch (e) {}
   }
 
   function applySize() {
@@ -83,13 +98,15 @@
     );
   }
 
-  function topBar(title) {
+  function handleHtml() {
     return (
-      '<header class="top">' +
-      '<button class="icon-btn" data-menu="1" title="Meny" aria-label="Meny">☰</button>' +
-      "<h1>" + title + "</h1>" +
-      "</header>"
+      '<button type="button" class="edge-handle' + (menuOpen ? " hide" : "") + '" id="edgeHandle" data-menu="1" aria-label="Meny">›</button>' +
+      (hintSeen() || menuOpen ? "" : '<div class="edge-hint" id="edgeHint">Svep här för menyn</div>')
     );
+  }
+
+  function topBar(title) {
+    return '<header class="top"><h1>' + title + "</h1></header>";
   }
 
   function homeView() {
@@ -109,7 +126,7 @@
       '<main class="view">' +
       '<div class="grid">' + tiles + "</div>" +
       '<p class="hint">En app. Moduler du vill ha. Reklamfritt.</p>' +
-      '<p class="foot">0.1.2 · skal</p>' +
+      '<p class="foot">0.1.3 · skal</p>' +
       "</main>"
     );
   }
@@ -151,7 +168,7 @@
       '<div class="about-box">' +
       "<h2>Om Taxi Wizard</h2>" +
       '<p class="hint">Skal för taximoduler. Flöde, logg och mer. Data ligger lokalt tills inlogg är klart.</p>' +
-      '<p class="foot">Version 0.1.2</p>' +
+      '<p class="foot">Version 0.1.3</p>' +
       "</div>" +
       "</main>"
     );
@@ -178,16 +195,32 @@
     return '<main class="view slot" id="slot"><p class="empty">Laddar…</p></main>';
   }
 
+  function openMenu() {
+    menuOpen = true;
+    markHint();
+    renderChromeOnly();
+  }
+
   function bind() {
     app.onclick = function (e) {
+      if (e.target.closest("#edgeHint")) {
+        markHint();
+        var hint = document.getElementById("edgeHint");
+        if (hint) hint.remove();
+        return;
+      }
       if (e.target.closest("[data-close-menu]")) {
         menuOpen = false;
         renderChromeOnly();
         return;
       }
       if (e.target.closest("[data-menu]")) {
-        menuOpen = !menuOpen;
-        renderChromeOnly();
+        if (menuOpen) {
+          menuOpen = false;
+          renderChromeOnly();
+        } else {
+          openMenu();
+        }
         return;
       }
       var goEl = e.target.closest("[data-go]");
@@ -223,6 +256,34 @@
     };
   }
 
+  function bindHandle() {
+    var h = document.getElementById("edgeHandle");
+    if (!h || h.getAttribute("data-bound") === "1") return;
+    h.setAttribute("data-bound", "1");
+    var x0 = 0;
+    var y0 = 0;
+    var tracking = false;
+    h.addEventListener("touchstart", function (e) {
+      var t = e.changedTouches[0];
+      x0 = t.clientX;
+      y0 = t.clientY;
+      tracking = true;
+    }, { passive: true });
+    h.addEventListener("touchmove", function (e) {
+      if (!tracking) return;
+      var t = e.changedTouches[0];
+      var dx = t.clientX - x0;
+      var dy = t.clientY - y0;
+      if (dx > 36 && dx > Math.abs(dy)) {
+        tracking = false;
+        openMenu();
+      }
+    }, { passive: true });
+    h.addEventListener("touchend", function () {
+      tracking = false;
+    }, { passive: true });
+  }
+
   function titleFor(path) {
     if (path === "/settings") return "Inställningar";
     if (path === "/about") return "Om";
@@ -236,8 +297,12 @@
   function renderChromeOnly() {
     var drawer = document.getElementById("drawer");
     var scrim = document.querySelector(".scrim");
+    var handle = document.getElementById("edgeHandle");
+    var hint = document.getElementById("edgeHint");
     if (drawer) drawer.classList.toggle("on", menuOpen);
     if (scrim) scrim.classList.toggle("on", menuOpen);
+    if (handle) handle.classList.toggle("hide", menuOpen);
+    if (hint && (menuOpen || hintSeen())) hint.remove();
   }
 
   function loadScript(src) {
@@ -278,7 +343,9 @@
     app.innerHTML =
       (hideTop ? "" : topBar(title)) +
       drawerHtml() +
+      handleHtml() +
       '<div class="stage" id="stage">' + body + "</div>";
+    bindHandle();
 
     if (mod && isOn(mod.id)) {
       var slot = document.getElementById("slot");
@@ -298,10 +365,7 @@
     register: function (id, mount) {
       mounts[id] = mount;
     },
-    openMenu: function () {
-      menuOpen = true;
-      renderChromeOnly();
-    }
+    openMenu: openMenu
   };
 
   applySize();
