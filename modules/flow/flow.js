@@ -14,6 +14,7 @@ TW.register("flow", function (el) {
   var filterOpen = false;
   var savedScroll = 0;
   var refreshing = false;
+  var skipRailClick = false;
 
   var ICONS = [
     ["summary", "Allt", '<path d="M4 6h16M4 12h10M4 18h13"/>'],
@@ -196,6 +197,7 @@ TW.register("flow", function (el) {
       return;
     }
     if (e.target.closest("#filterRail")) {
+      if (skipRailClick) { skipRailClick = false; return; }
       filterOpen = !filterOpen;
       helpOpen = false;
       placeOpen = false;
@@ -305,32 +307,80 @@ TW.register("flow", function (el) {
     }, { passive: true });
   }
 
+  function railW() {
+    var d = document.querySelector(".flow-drawer");
+    return d ? d.offsetWidth : Math.min(window.innerWidth * 0.78, 280);
+  }
+  function dragRail(amt) {
+    if (amt < 0) amt = 0;
+    if (amt > 1) amt = 1;
+    var d = document.querySelector(".flow-drawer");
+    var h = document.getElementById("filterRail");
+    var s = document.querySelector(".flow-scrim");
+    var w = railW();
+    if (d) {
+      d.style.transition = "none";
+      d.style.transform = "translateX(" + ((1 - amt) * 105) + "%)";
+    }
+    if (h) {
+      h.style.transition = "none";
+      h.style.right = (amt * w) + "px";
+      h.textContent = amt > 0.5 ? "\u203a" : "\u2039";
+    }
+    if (s) {
+      s.style.transition = "none";
+      s.style.opacity = String(amt);
+      s.style.pointerEvents = amt > 0.12 ? "auto" : "none";
+    }
+    return amt;
+  }
+  function endRailDrag(amt) {
+    var d = document.querySelector(".flow-drawer");
+    var h = document.getElementById("filterRail");
+    var s = document.querySelector(".flow-scrim");
+    if (d) { d.style.transition = ""; d.style.transform = ""; }
+    if (h) { h.style.transition = ""; h.style.right = ""; }
+    if (s) { s.style.transition = ""; s.style.opacity = ""; s.style.pointerEvents = ""; }
+    filterOpen = amt >= 0.35;
+    paint();
+  }
   function bindRail() {
     var h = document.getElementById("filterRail");
+    var d = document.querySelector(".flow-drawer");
     if (!h || h.getAttribute("data-bound") === "1") return;
     h.setAttribute("data-bound", "1");
-    var x0 = 0, y0 = 0, tracking = false;
-    h.addEventListener("touchstart", function (e) {
-      var tch = e.changedTouches[0];
-      x0 = tch.clientX; y0 = tch.clientY; tracking = true;
-    }, { passive: true });
-    h.addEventListener("touchmove", function (e) {
+    var x0 = 0, y0 = 0, start = 0, amt = 0, tracking = false, moved = false;
+    function down(e) {
+      var t = e.changedTouches[0];
+      x0 = t.clientX; y0 = t.clientY;
+      start = filterOpen ? 1 : 0;
+      amt = start; tracking = true; moved = false;
+    }
+    function move(e) {
       if (!tracking) return;
-      var tch = e.changedTouches[0];
-      var dx = tch.clientX - x0, dy = tch.clientY - y0;
-      if (dx < -36 && Math.abs(dx) > Math.abs(dy) && !filterOpen) {
-        tracking = false;
-        filterOpen = true;
-        helpOpen = false;
-        placeOpen = false;
-        paint();
-      } else if (dx > 36 && dx > Math.abs(dy) && filterOpen) {
-        tracking = false;
-        filterOpen = false;
-        paint();
+      var t = e.changedTouches[0];
+      var dx = t.clientX - x0, dy = t.clientY - y0;
+      if (!moved && Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
+      if (Math.abs(dy) > Math.abs(dx) + 10 && !moved) { tracking = false; return; }
+      moved = true;
+      amt = dragRail(start - dx / railW());
+    }
+    function up() {
+      if (!tracking) return;
+      tracking = false;
+      if (moved) {
+        skipRailClick = true;
+        endRailDrag(amt);
       }
-    }, { passive: true });
-    h.addEventListener("touchend", function () { tracking = false; }, { passive: true });
+    }
+    h.addEventListener("touchstart", down, { passive: true });
+    h.addEventListener("touchmove", move, { passive: true });
+    h.addEventListener("touchend", up, { passive: true });
+    if (d) {
+      d.addEventListener("touchstart", down, { passive: true });
+      d.addEventListener("touchmove", move, { passive: true });
+      d.addEventListener("touchend", up, { passive: true });
+    }
   }
 
   paint();
