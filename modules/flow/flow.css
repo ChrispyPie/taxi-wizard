@@ -181,7 +181,7 @@
 
 .feed-item {
   display: grid;
-  grid-template-columns: 7.4ch minmax(0, 1fr) 1.75em;
+  grid-template-columns: 5.2ch minmax(0, 1fr) 1.75em;
   column-gap: clamp(0.45em, 2.4vw, 0.9em);
   padding: 0.7em 0;
   border: 1px dashed #94a3b8;
@@ -199,10 +199,11 @@
 .feed-left {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
+  text-align: center;
   font-variant-numeric: tabular-nums;
 }
-.feed-time { color: var(--fg); font-size: 0.78rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+.feed-time { color: var(--fg); font-size: 0.95rem; font-weight: 800; font-variant-numeric: tabular-nums; }
 .feed-plan { color: var(--muted); font-size: 0.62rem; font-weight: 600; margin-top: 1px; }
 .feed-dev { font-size: 0.62rem; font-weight: 800; margin-top: 1px; }
 .feed-dev.late { color: #f87171; }
