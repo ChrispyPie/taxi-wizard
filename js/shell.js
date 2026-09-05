@@ -154,7 +154,7 @@
       );
     }).join("");
     return (
-      '<main class="view">' +
+      '<main class="view settings">' +
       '<div class="row"><div><h3>Textstorlek</h3><p>För telefon och surfplatta i bilen.</p></div></div>' +
       '<div class="sizes">' + sizeBtns + "</div>" +
       '<div class="row" style="margin-top:18px"><div><h3>Moduler</h3><p>Visa eller dölj rutor på startsidan.</p></div></div>' +
