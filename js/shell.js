@@ -84,7 +84,6 @@
     }).join("");
     return (
       '<aside class="drawer' + (menuOpen ? " on" : "") + '" id="drawer">' +
-      '<button type="button" class="drawer-close" data-close-menu="1" aria-label="Stäng meny">‹</button>' +
       '<div class="drawer-head"><strong>Taxi Wizard</strong><span>Skal + moduler</span></div>' +
       "<nav>" +
       '<button class="nav-link' + (act === "home" ? " on" : "") + '" data-go="/"><span class="mark">⌂</span>Hem</button>' +
@@ -101,7 +100,7 @@
 
   function handleHtml() {
     return (
-      '<button type="button" class="edge-handle' + (menuOpen ? " hide" : "") + '" id="edgeHandle" data-menu="1" aria-label="Meny">›</button>' +
+      '<button type="button" class="edge-handle' + (menuOpen ? " open" : "") + '" id="edgeHandle" data-menu="1" aria-label="Meny">' + (menuOpen ? "\u2039" : "\u203a") + "</button>" +
       (hintSeen() || menuOpen ? "" : '<div class="edge-hint" id="edgeHint">Svep här för menyn</div>')
     );
   }
@@ -275,9 +274,13 @@
       var t = e.changedTouches[0];
       var dx = t.clientX - x0;
       var dy = t.clientY - y0;
-      if (dx > 36 && dx > Math.abs(dy)) {
+      if (dx > 36 && dx > Math.abs(dy) && !menuOpen) {
         tracking = false;
         openMenu();
+      } else if (dx < -36 && Math.abs(dx) > Math.abs(dy) && menuOpen) {
+        tracking = false;
+        menuOpen = false;
+        renderChromeOnly();
       }
     }, { passive: true });
     h.addEventListener("touchend", function () {
@@ -302,7 +305,10 @@
     var hint = document.getElementById("edgeHint");
     if (drawer) drawer.classList.toggle("on", menuOpen);
     if (scrim) scrim.classList.toggle("on", menuOpen);
-    if (handle) handle.classList.toggle("hide", menuOpen);
+    if (handle) {
+      handle.classList.toggle("open", menuOpen);
+      handle.textContent = menuOpen ? "\u2039" : "\u203a";
+    }
     if (hint && (menuOpen || hintSeen())) hint.remove();
   }
 
