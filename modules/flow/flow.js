@@ -175,9 +175,10 @@ TW.register("flow", function (el) {
       '<button type="button" class="float-arrow up" id="flodeMorePast" aria-label="Äldre">' + arrowSvg("up", false) + "</button>" +
       '<div class="flow-list" id="flodeScroll">' +
       '<div id="flodeList" class="card feed-card">' +
+      '<div class="feed-end-cap top" aria-hidden="true"></div>' +
       list +
+      '<div class="feed-end-cap bottom" aria-hidden="true"></div>' +
       "</div>" +
-      '<p class="hint" id="flodeHint">Flöde = tider. Olyckor och köer ligger under TRAFIK-kartan.</p>' +
       "</div>" +
       '<button type="button" class="float-arrow down" id="flodeMoreFuture" aria-label="Nyare">' + arrowSvg("down", false) + "</button>" +
       "</div>" +
