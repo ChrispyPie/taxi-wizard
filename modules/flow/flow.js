@@ -104,10 +104,9 @@ TW.register("flow", function (el) {
 
   function filterHtml() {
     return (
-      '<button type="button" class="flow-rail' + (filterOpen ? " hide" : "") + '" id="filterRail" aria-label="Filter">‹</button>' +
+      '<button type="button" class="flow-rail' + (filterOpen ? " open" : "") + '" id="filterRail" aria-label="Filter">' + (filterOpen ? "\u203a" : "\u2039") + "</button>" +
       '<div class="flow-scrim' + (filterOpen ? " on" : "") + '" data-close-sheet="1"></div>' +
       '<aside class="flow-drawer' + (filterOpen ? " on" : "") + '">' +
-      '<button type="button" class="flow-drawer-close" data-close-sheet="1" aria-label="Stäng filter">›</button>' +
       "<h3>Filter</h3>" +
       "<p>Här kommer extra filter. Inte klart än.</p>" +
       '<button type="button" class="flow-card-ok" data-close-sheet="1">Stäng</button>' +
@@ -319,11 +318,15 @@ TW.register("flow", function (el) {
       if (!tracking) return;
       var tch = e.changedTouches[0];
       var dx = tch.clientX - x0, dy = tch.clientY - y0;
-      if (dx < -36 && Math.abs(dx) > Math.abs(dy)) {
+      if (dx < -36 && Math.abs(dx) > Math.abs(dy) && !filterOpen) {
         tracking = false;
         filterOpen = true;
         helpOpen = false;
         placeOpen = false;
+        paint();
+      } else if (dx > 36 && dx > Math.abs(dy) && filterOpen) {
+        tracking = false;
+        filterOpen = false;
         paint();
       }
     }, { passive: true });
