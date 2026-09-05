@@ -250,12 +250,13 @@
 
 .flow-rail {
   position: fixed; right: 0; top: 50%; transform: translateY(-50%);
-  z-index: 12; width: 20px; height: 52px;
+  z-index: 20; width: 20px; height: 52px;
   border: 1px solid var(--border); border-right: 0;
   border-radius: 12px 0 0 12px; background: #151922; color: var(--muted);
   font-size: 1.05rem; line-height: 1; padding: 0;
+  transition: right .2s ease;
 }
-.flow-rail.hide { opacity: 0; pointer-events: none; }
+.flow-rail.open { right: min(78vw, 280px); }
 .flow-scrim {
   position: fixed; inset: 0; background: rgba(0,0,0,.45);
   z-index: 18; opacity: 0; pointer-events: none;
@@ -269,21 +270,5 @@
   padding: calc(12px + env(safe-area-inset-top)) 14px env(safe-area-inset-bottom);
 }
 .flow-drawer.on { transform: translateX(0); }
-.flow-drawer-close {
-  position: absolute;
-  left: -22px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 22px;
-  height: 56px;
-  border: 1px solid var(--border);
-  border-right: 0;
-  border-radius: 12px 0 0 12px;
-  background: #151922;
-  color: var(--muted);
-  font-size: 1.05rem;
-  line-height: 1;
-  padding: 0;
-}
 .flow-drawer h3 { margin: 0 0 8px; }
 .flow-drawer p { color: var(--muted); font-size: .86rem; margin: 0 0 12px; }
