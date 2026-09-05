@@ -184,10 +184,18 @@
   grid-template-columns: 7.4ch minmax(0, 1fr) 1.75em;
   column-gap: clamp(0.45em, 2.4vw, 0.9em);
   padding: 0.7em 0;
-  border-bottom: 1px solid var(--border);
+  border: 1px dashed #94a3b8;
   align-items: start;
 }
-.feed-item:last-child { border-bottom: 0; }
+.feed-item:last-child { border-bottom: 1px dashed #94a3b8; }
+.feed-item > * {
+  outline: 1px solid #3b82f6;
+}
+.feed-left > *,
+.feed-item > div > *,
+.feed-kv > * {
+  outline: 1px solid #f59e0b;
+}
 .feed-left {
   display: flex;
   flex-direction: column;
