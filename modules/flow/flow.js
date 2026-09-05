@@ -107,6 +107,7 @@ TW.register("flow", function (el) {
       '<button type="button" class="flow-rail' + (filterOpen ? " hide" : "") + '" id="filterRail" aria-label="Filter">‹</button>' +
       '<div class="flow-scrim' + (filterOpen ? " on" : "") + '" data-close-sheet="1"></div>' +
       '<aside class="flow-drawer' + (filterOpen ? " on" : "") + '">' +
+      '<button type="button" class="flow-drawer-close" data-close-sheet="1" aria-label="Stäng filter">›</button>' +
       "<h3>Filter</h3>" +
       "<p>Här kommer extra filter. Inte klart än.</p>" +
       '<button type="button" class="flow-card-ok" data-close-sheet="1">Stäng</button>' +
