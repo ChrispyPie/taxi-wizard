@@ -84,6 +84,7 @@
     }).join("");
     return (
       '<aside class="drawer' + (menuOpen ? " on" : "") + '" id="drawer">' +
+      '<button type="button" class="drawer-close" data-close-menu="1" aria-label="Stäng meny">‹</button>' +
       '<div class="drawer-head"><strong>Taxi Wizard</strong><span>Skal + moduler</span></div>' +
       "<nav>" +
       '<button class="nav-link' + (act === "home" ? " on" : "") + '" data-go="/"><span class="mark">⌂</span>Hem</button>' +
