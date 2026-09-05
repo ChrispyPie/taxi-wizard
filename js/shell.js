@@ -5,6 +5,7 @@
   var mounts = {};
   var app = document.getElementById("app");
   var menuOpen = false;
+  var skipMenuClick = false;
 
   function loadSettings() {
     try {
@@ -215,6 +216,7 @@
         return;
       }
       if (e.target.closest("[data-menu]")) {
+        if (skipMenuClick) { skipMenuClick = false; return; }
         if (menuOpen) {
           menuOpen = false;
           renderChromeOnly();
@@ -256,36 +258,84 @@
     };
   }
 
+  function menuW() {
+    var d = document.getElementById("drawer");
+    return d ? d.offsetWidth : Math.min(window.innerWidth * 0.82, 300);
+  }
+
+  function dragMenu(amt) {
+    if (amt < 0) amt = 0;
+    if (amt > 1) amt = 1;
+    var d = document.getElementById("drawer");
+    var h = document.getElementById("edgeHandle");
+    var s = document.querySelector(".scrim");
+    var w = menuW();
+    if (d) {
+      d.style.transition = "none";
+      d.style.transform = "translateX(" + ((amt - 1) * 105) + "%)";
+    }
+    if (h) {
+      h.style.transition = "none";
+      h.style.left = (amt * w) + "px";
+      h.textContent = amt > 0.5 ? "\u2039" : "\u203a";
+    }
+    if (s) {
+      s.style.transition = "none";
+      s.style.opacity = String(amt);
+      s.style.pointerEvents = amt > 0.12 ? "auto" : "none";
+    }
+    return amt;
+  }
+
+  function endMenuDrag(amt) {
+    var d = document.getElementById("drawer");
+    var h = document.getElementById("edgeHandle");
+    var s = document.querySelector(".scrim");
+    if (d) { d.style.transition = ""; d.style.transform = ""; }
+    if (h) { h.style.transition = ""; h.style.left = ""; }
+    if (s) { s.style.transition = ""; s.style.opacity = ""; s.style.pointerEvents = ""; }
+    menuOpen = amt >= 0.35;
+    if (menuOpen) markHint();
+    renderChromeOnly();
+  }
+
   function bindHandle() {
     var h = document.getElementById("edgeHandle");
+    var d = document.getElementById("drawer");
     if (!h || h.getAttribute("data-bound") === "1") return;
     h.setAttribute("data-bound", "1");
-    var x0 = 0;
-    var y0 = 0;
-    var tracking = false;
-    h.addEventListener("touchstart", function (e) {
+    var x0 = 0, y0 = 0, start = 0, amt = 0, tracking = false, moved = false;
+    function down(e) {
       var t = e.changedTouches[0];
-      x0 = t.clientX;
-      y0 = t.clientY;
-      tracking = true;
-    }, { passive: true });
-    h.addEventListener("touchmove", function (e) {
+      x0 = t.clientX; y0 = t.clientY;
+      start = menuOpen ? 1 : 0;
+      amt = start; tracking = true; moved = false;
+    }
+    function move(e) {
       if (!tracking) return;
       var t = e.changedTouches[0];
-      var dx = t.clientX - x0;
-      var dy = t.clientY - y0;
-      if (dx > 36 && dx > Math.abs(dy) && !menuOpen) {
-        tracking = false;
-        openMenu();
-      } else if (dx < -36 && Math.abs(dx) > Math.abs(dy) && menuOpen) {
-        tracking = false;
-        menuOpen = false;
-        renderChromeOnly();
-      }
-    }, { passive: true });
-    h.addEventListener("touchend", function () {
+      var dx = t.clientX - x0, dy = t.clientY - y0;
+      if (!moved && Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
+      if (Math.abs(dy) > Math.abs(dx) + 10 && !moved) { tracking = false; return; }
+      moved = true;
+      amt = dragMenu(start + dx / menuW());
+    }
+    function up() {
+      if (!tracking) return;
       tracking = false;
-    }, { passive: true });
+      if (moved) {
+        skipMenuClick = true;
+        endMenuDrag(amt);
+      }
+    }
+    h.addEventListener("touchstart", down, { passive: true });
+    h.addEventListener("touchmove", move, { passive: true });
+    h.addEventListener("touchend", up, { passive: true });
+    if (d) {
+      d.addEventListener("touchstart", down, { passive: true });
+      d.addEventListener("touchmove", move, { passive: true });
+      d.addEventListener("touchend", up, { passive: true });
+    }
   }
 
   function titleFor(path) {
