@@ -174,8 +174,8 @@ TW.register("flow", function (el) {
       '<div class="flow-feed">' +
       '<button type="button" class="float-arrow up" id="flodeMorePast" aria-label="Äldre">' + arrowSvg("up", false) + "</button>" +
       '<div class="flow-list" id="flodeScroll">' +
-      '<div id="flodeList" class="card feed-card">' +
       '<div class="feed-end-cap top" aria-hidden="true"></div>' +
+      '<div id="flodeList" class="card feed-card">' +
       list +
       '<div class="feed-end-cap bottom" aria-hidden="true"></div>' +
       "</div>" +
