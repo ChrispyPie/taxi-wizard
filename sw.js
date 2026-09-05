@@ -1,6 +1,6 @@
 self.addEventListener("install", function (e) {
   e.waitUntil(
-    caches.open("tw-0.1.4").then(function (c) {
+    caches.open("tw-0.1.5").then(function (c) {
       return c.addAll([
         "./",
         "index.html",
@@ -18,7 +18,7 @@ self.addEventListener("activate", function (e) {
   e.waitUntil(
     caches.keys().then(function (keys) {
       return Promise.all(
-        keys.filter(function (k) { return k !== "tw-0.1.4"; }).map(function (k) {
+        keys.filter(function (k) { return k !== "tw-0.1.5"; }).map(function (k) {
           return caches.delete(k);
         })
       );
@@ -33,7 +33,7 @@ self.addEventListener("fetch", function (e) {
   e.respondWith(
     fetch(e.request).then(function (res) {
       var copy = res.clone();
-      caches.open("tw-0.1.4").then(function (c) { c.put(e.request, copy); });
+      caches.open("tw-0.1.5").then(function (c) { c.put(e.request, copy); });
       return res;
     }).catch(function () {
       return caches.match(e.request);
