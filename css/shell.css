@@ -85,6 +85,12 @@ body {
   display: flex;
   flex-direction: column;
 }
+.view.settings h3 { font-size: 1.15em; }
+.view.settings p { font-size: 0.95em; }
+.view.settings .sizes button {
+  font-size: 1.05em;
+  padding: 10px 14px;
+}
 
 .grid {
   display: grid;
