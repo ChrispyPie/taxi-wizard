@@ -164,28 +164,55 @@ body {
   transition: transform .22s ease;
   display: flex;
   flex-direction: column;
+  overflow: visible;
   padding: calc(10px + env(safe-area-inset-top)) 0 env(safe-area-inset-bottom);
 }
 .drawer.on { transform: translateX(0); }
+.drawer-close {
+  position: absolute;
+  right: -22px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 51;
+  width: 22px;
+  height: 56px;
+  border: 1px solid var(--line);
+  border-left: 0;
+  border-radius: 0 12px 12px 0;
+  background: #151922;
+  color: var(--muted);
+  font-size: 1.05rem;
+  line-height: 1;
+  padding: 0;
+  cursor: pointer;
+}
 .drawer-head {
   padding: 8px 16px 14px;
   border-bottom: 1px solid var(--line);
 }
 .drawer-head strong { display: block; font-size: 1em; }
 .drawer-head span { color: var(--muted); font-size: .78em; }
-.drawer nav { padding: 8px 8px; overflow-y: auto; }
-.nav-link {
+.drawer nav {
+  padding: 10px 16px;
+  overflow-y: auto;
   display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+.nav-link {
+  display: inline-flex;
   align-items: center;
-  gap: 10px;
-  width: 100%;
+  gap: 8px;
+  width: auto;
+  max-width: 100%;
   text-align: left;
   border: 0;
   background: transparent;
   color: var(--text);
   font: inherit;
-  padding: 11px 12px;
-  border-radius: 10px;
+  padding: 6px 8px;
+  border-radius: 8px;
   cursor: pointer;
 }
 .nav-link .mark { color: var(--muted); width: 1.2em; text-align: center; }
@@ -197,7 +224,8 @@ body {
 .nav-sep {
   height: 1px;
   background: var(--line);
-  margin: 8px 12px;
+  margin: 8px 0;
+  align-self: stretch;
 }
 
 .login-box, .about-box { max-width: 420px; }
