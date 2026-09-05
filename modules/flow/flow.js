@@ -103,9 +103,20 @@ TW.register("flow", function (el) {
     );
   }
 
+  function arrowSvg(dir, dbl) {
+    if (dir === "up") {
+      return dbl
+        ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 13l6-6 6 6"/><path d="M6 19l6-6 6 6"/></svg>'
+        : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg>';
+    }
+    return dbl
+      ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 5l6 6 6-6"/><path d="M6 11l6 6 6-6"/></svg>'
+      : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>';
+  }
+
   function filterHtml() {
     return (
-      '<button type="button" class="flow-rail' + (filterOpen ? " open" : "") + '" id="filterRail" aria-label="Filter">' + (filterOpen ? "\u203a" : "\u2039") + "</button>" +
+      '<button type="button" class="flow-rail' + (filterOpen ? " open" : "") + '" id="filterRail" aria-label="Filter">' + (filterOpen ? "›" : "‹") + "</button>" +
       '<div class="flow-scrim' + (filterOpen ? " on" : "") + '" data-close-sheet="1"></div>' +
       '<aside class="flow-drawer' + (filterOpen ? " on" : "") + '">' +
       "<h3>Filter</h3>" +
@@ -147,7 +158,7 @@ TW.register("flow", function (el) {
       "</div>" +
       '<div class="flode-place-wrap' + (placeOpen ? " open" : "") + '">' +
       '<button type="button" class="flode-place" id="placeBtn" title="Plats">' +
-      placeLabel() + " ▾</button>" +
+      '<span class="lab">' + placeLabel() + '</span><span class="caret">▾</span></button>' +
       '<div class="place-menu">' +
       placeList().map(function (name) {
         return '<button type="button" class="place-opt on">' + name + "</button>";
@@ -160,22 +171,25 @@ TW.register("flow", function (el) {
       "</div>" +
       "</div>" +
       '<div class="ptr" id="ptrBar">↻</div>' +
+      '<div class="flow-feed">' +
+      '<button type="button" class="float-arrow up" id="flodeMorePast" aria-label="Äldre">' + arrowSvg("up", false) + "</button>" +
       '<div class="flow-list" id="flodeScroll">' +
       '<div id="flodeList" class="card feed-card">' +
-      '<button type="button" class="feed-more-past" id="flodeMorePast" aria-label="Visa en timme bakåt">⌃</button>' +
       list +
       "</div>" +
-      '<button type="button" class="flode-more" id="flodeMoreFuture" aria-label="Visa en timme framåt">⌄</button>' +
       '<p class="hint" id="flodeHint">Flöde = tider. Olyckor och köer ligger under TRAFIK-kartan.</p>' +
+      "</div>" +
+      '<button type="button" class="float-arrow down" id="flodeMoreFuture" aria-label="Nyare">' + arrowSvg("down", false) + "</button>" +
       "</div>" +
       helpHtml() +
       filterHtml() +
       "</div>";
     bindRail();
     bindPtr();
-    hidePastEnd();
+    bindArrows();
     var sc = document.getElementById("flodeScroll");
     if (sc && savedScroll > 8) sc.scrollTop = savedScroll;
+    updateArrows();
   }
 
   el.onclick = function (e) {
@@ -237,6 +251,23 @@ TW.register("flow", function (el) {
       star.classList.toggle("on");
       return;
     }
+    if (e.target.closest("#flodeMorePast")) {
+      var scU = document.getElementById("flodeScroll");
+      if (scU) {
+        if (scU.scrollTop <= 8) scU.scrollTop = 0;
+        else scU.scrollBy({ top: -Math.round(scU.clientHeight * 0.85), behavior: "smooth" });
+      }
+      return;
+    }
+    if (e.target.closest("#flodeMoreFuture")) {
+      var scD = document.getElementById("flodeScroll");
+      if (scD) {
+        var room = scD.scrollHeight - scD.clientHeight - scD.scrollTop;
+        if (room <= 10) scD.scrollTop = scD.scrollHeight;
+        else scD.scrollBy({ top: Math.round(scD.clientHeight * 0.85), behavior: "smooth" });
+      }
+      return;
+    }
     var row = e.target.closest(".feed-item[data-sid]");
     if (row) {
       var id = row.getAttribute("data-sid");
@@ -266,11 +297,27 @@ TW.register("flow", function (el) {
     }, 520);
   }
 
-  function hidePastEnd() {
+  function updateArrows() {
     var sc = document.getElementById("flodeScroll");
-    var past = document.getElementById("flodeMorePast");
-    if (!sc || !past) return;
-    if (sc.scrollTop < 2) sc.scrollTop = past.offsetHeight;
+    var up = document.getElementById("flodeMorePast");
+    var down = document.getElementById("flodeMoreFuture");
+    if (!sc) return;
+    var atStart = sc.scrollTop <= 8;
+    var atEnd = sc.scrollTop + sc.clientHeight >= sc.scrollHeight - 10;
+    if (up) {
+      up.classList.toggle("end", atStart);
+      up.innerHTML = arrowSvg("up", atStart);
+    }
+    if (down) {
+      down.classList.toggle("end", atEnd);
+      down.innerHTML = arrowSvg("down", atEnd);
+    }
+  }
+  function bindArrows() {
+    var sc = document.getElementById("flodeScroll");
+    if (!sc || sc.getAttribute("data-arrows") === "1") return;
+    sc.setAttribute("data-arrows", "1");
+    sc.addEventListener("scroll", updateArrows, { passive: true });
   }
 
   function bindPtr() {
