@@ -125,7 +125,7 @@
   height: 100%;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  padding: 0 12px calc(16px + env(safe-area-inset-bottom));
+  padding: 0 18px calc(16px + env(safe-area-inset-bottom));
 }
 .float-arrow {
   position: absolute;
@@ -253,10 +253,10 @@
 
 .flow-rail {
   position: fixed; right: 0; top: 50%; transform: translateY(-50%);
-  z-index: 12; width: 20px; height: 52px;
+  z-index: 12; width: 28px; height: 68px;
   border: 1px solid var(--border); border-right: 0;
-  border-radius: 12px 0 0 12px; background: #151922; color: var(--muted);
-  font-size: 1.05rem; line-height: 1; padding: 0;
+  border-radius: 14px 0 0 14px; background: #151922; color: var(--muted);
+  font-size: 1.25rem; line-height: 1; padding: 0;
 }
 .flow-rail.open {
   right: min(78vw, 280px);
