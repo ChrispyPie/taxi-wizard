@@ -168,24 +168,6 @@ body {
   padding: calc(10px + env(safe-area-inset-top)) 0 env(safe-area-inset-bottom);
 }
 .drawer.on { transform: translateX(0); }
-.drawer-close {
-  position: absolute;
-  right: -22px;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 51;
-  width: 22px;
-  height: 56px;
-  border: 1px solid var(--line);
-  border-left: 0;
-  border-radius: 0 12px 12px 0;
-  background: #151922;
-  color: var(--muted);
-  font-size: 1.05rem;
-  line-height: 1;
-  padding: 0;
-  cursor: pointer;
-}
 .drawer-head {
   padding: 8px 16px 14px;
   border-bottom: 1px solid var(--line);
@@ -261,7 +243,7 @@ body {
   left: 0;
   top: 50%;
   transform: translateY(-50%);
-  z-index: 35;
+  z-index: 51;
   width: 22px;
   height: 56px;
   border: 1px solid var(--line);
@@ -273,8 +255,9 @@ body {
   line-height: 1;
   padding: 0 2px 0 0;
   cursor: pointer;
+  transition: left .22s ease;
 }
-.edge-handle.hide { opacity: 0; pointer-events: none; }
+.edge-handle.open { left: min(82vw, 300px); }
 .edge-hint {
   position: fixed;
   left: 28px;
